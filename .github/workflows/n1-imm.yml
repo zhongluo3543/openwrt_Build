@@ -4,7 +4,7 @@
 # Author: kenzo
 #=================================================
 
-name: openwrt_25.12
+name: n1–openwrt_25.12
 
 on:
   repository_dispatch:
