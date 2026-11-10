@@ -17,7 +17,7 @@ on:
 
 env:
   UPLOAD_BIN_DIR: false
-  UPLOAD_FIRMWARE: true
+  UPLOAD_FIRMWARE: false
   UPLOAD_COWTRANSFER: false
   UPLOAD_WETRANSFER: false
   UPLOAD_RELEASE: true
@@ -192,68 +192,7 @@ jobs:
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
         
-    - name: Upload firmware to Cloudflare R2
-      env:
-        R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-        R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-        R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
-        R2_BUCKET: ${{ secrets.R2_BUCKET }}
-      if: steps.organize.outputs.status == 'success' && !cancelled()
-      run: |
-        curl -fsSL https://rclone.org/install.sh | sudo bash
-        mkdir -p ~/.config/rclone
-        R2_ID="${R2_ACCESS_KEY_ID}"
-        if [ -z "$R2_ID" ] || [ -z "$R2_SECRET_ACCESS_KEY" ] || [ -z "$R2_BUCKET" ] || [ -z "$R2_ENDPOINT" ]; then
-          echo "Missing Cloudflare R2 credentials"
-          exit 1
-        fi
-        cat > ~/.config/rclone/rclone.conf <<EOF
-        [r2]
-        type = s3
-        provider = Cloudflare
-        access_key_id = ${R2_ID}
-        secret_access_key = ${R2_SECRET_ACCESS_KEY}
-        endpoint = ${R2_ENDPOINT}
-        acl = private
-        no_check_bucket = true
-        EOF
-        rclone copy "${{ env.FIRMWARE }}" "r2:${R2_BUCKET}/firmware/${{matrix.target}}/" \
-          --fast-list \
-          --transfers 8 \
-          --checkers 16 \
-          --create-empty-src-dirs \
-          --checksum         
-      
-    - name: Upload firmware directory
-      uses: actions/upload-artifact@main
-      if: steps.organize.outputs.status == 'success' && !cancelled()
-      with:
-        name: ${{ env.date3 }}_${{matrix.target}}
-        path: ${{ env.FIRMWARE }}
-        
-    - name: Set Up Docker Buildx
-      uses: docker/setup-buildx-action@master
-      if: env.DOCKER_ID && env.DOCKER_PASSWD
-
-    - name: Login To DockerHub
-      uses: docker/login-action@master
-      if: env.DOCKER_ID && env.DOCKER_PASSWD
-      with:
-        username: ${{ secrets.DOCKER_ID }}
-        password: ${{ secrets.DOCKER_PASSWD }}
-        
-    - name: Build and push docker image
-      uses: docker/build-push-action@master
-      continue-on-error: true
-      if: env.DOCKER_ID && env.DOCKER_PASSWD && ! contains(github.event.action, 'noser')
-      with:
-        platforms: ${{ env.ARCH }}
-        file: Dockerfile
-        context: .
-        push: true
-        tags: |
-          ${{ secrets.DOCKER_ID }}/openwrt-6p:${{matrix.target}}
-          ${{ env.DOCKERTAG }}        
+    
 
     - name: Upload firmware to cowtransfer
       id: cowtransfer
