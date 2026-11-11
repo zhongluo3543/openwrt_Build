@@ -178,21 +178,21 @@ jobs:
       if: success() && env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
         mkdir firmware
-        mv -f openwrt/bin/targets/*/*/{*combined*,*sysupgrade*} ./firmware/ 2>/dev/null || true
+        # 兼容 N1 的 armv8 固件后缀（img.gz, sysupgrade 等）
+        mv -f openwrt/bin/targets/*/*/{*sysupgrade*,*img.gz*,*combined*} ./firmware/ 2>/dev/null || true
         cp openwrt/.config ./firmware/${{matrix.target}}.config 2>/dev/null || true
         cp openwrt/build_dir/target-*/linux-*/linux-*/.config ./firmware/${{matrix.target}}_kernel.config 2>/dev/null || true
         cd firmware
         echo "v${{ env.date2 }}" > version.txt
-        md5_output=$( (md5sum *squashfs-sysupgrade* 2>/dev/null || md5sum *squashfs-combined-efi* 2>/dev/null) | awk '{print $1}' ) || true
-        echo "$md5_output" >> version.txt
-        rename -v "s/^immortalwrt/${{ env.VERSION }}-openwrt/" * || true
-        rename -v "s/friendlyarm_//" *gz || true
+        md5_output=$(md5sum * 2>/dev/null | awk '{print $1}' | head -n 1) || true
         echo "$md5_output" >> version.txt
         echo ${{matrix.target}} >> version.txt     
         rm -rf sha256sums
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
-        
+
+
+
     - name: Upload firmware directory
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
@@ -252,12 +252,3 @@ jobs:
         retain_days: 1
         keep_minimum_runs: 0
 
-    - name: Remove old Releases
-      uses: dev-drprasad/delete-older-releases@master
-      if: success() && env.UPLOAD_RELEASE == 'true' && !cancelled()
-      with:
-        keep_latest: 6
-        delete_tags: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
-        
