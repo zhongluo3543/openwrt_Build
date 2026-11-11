@@ -179,7 +179,7 @@ jobs:
       run: |
         mkdir firmware
         # 兼容 N1 的 armv8 固件后缀（img.gz, sysupgrade 等）
-        mv -f openwrt/bin/targets/*/*/{*sysupgrade*,*img.gz*,*combined*} ./firmware/ 2>/dev/null || true
+        mv -f openwrt/bin/targets/*/*/{*sysupgrade*,*img.gz*,*tar.gz*,*combined*} ./firmware/ 2>/dev/null || true
         cp openwrt/.config ./firmware/${{matrix.target}}.config 2>/dev/null || true
         cp openwrt/build_dir/target-*/linux-*/linux-*/.config ./firmware/${{matrix.target}}_kernel.config 2>/dev/null || true
         cd firmware
