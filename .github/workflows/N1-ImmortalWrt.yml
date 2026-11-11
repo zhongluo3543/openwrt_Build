@@ -38,7 +38,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [n1-imm]
+        target: [N1-ImmortalWrt]
     
     steps:
     - name: Checkout
