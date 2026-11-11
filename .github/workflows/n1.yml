@@ -5,7 +5,8 @@
 #=================================================
 
 name: N1-LEDE-6.18-armv8
-
+permissions:
+  contents: write
 on:
   repository_dispatch:
   workflow_dispatch:
@@ -219,7 +220,7 @@ jobs:
       uses: softprops/action-gh-release@v3
       if: steps.tag.outputs.status == 'success' && !cancelled()
       env:
-        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: "${{ env.FIRMWARE }}/*"
         name: ${{ env.date2 }} ${{matrix.target}}
