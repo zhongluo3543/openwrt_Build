@@ -404,10 +404,7 @@ jobs:
       run: |
         mkdir -p firmware
 
-        # 1. 保留原始 rootfs.tar.gz
-        find openwrt/bin/targets -type f -name '*rootfs.tar.gz' \
-          -exec cp -av {} firmware/ \; 2>/dev/null || true
-
+  
         # 2. 复制打包后的全部文件
         OUT="${PACKAGED_OUTPUTPATH:-/opt/openwrt_packit/output}"
 
