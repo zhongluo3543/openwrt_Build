@@ -44,7 +44,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [N1-ImmortalWrt]
+        target: [N1-lite]
 
     steps:
 
