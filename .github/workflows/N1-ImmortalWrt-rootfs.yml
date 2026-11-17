@@ -4,7 +4,7 @@
 # Author: kenzo
 #=================================================
 
-name: N1-ImmortalWrt_25.12
+name: N1-ImmortalWrt_rootfs
 permissions:
   contents: write
 on:
