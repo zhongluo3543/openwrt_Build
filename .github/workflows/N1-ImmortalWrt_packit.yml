@@ -16,7 +16,7 @@ on:
     inputs:
       ssh:
         description: 'ssh'
-        required: true
+        required: false
         default: 'true'
 
 env:
