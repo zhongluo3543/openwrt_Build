@@ -169,6 +169,12 @@ jobs:
       env:
         CONFIG_FILE: '${{ matrix.target }}.config'
       run: |
+        # 清理旧配置
+        rm -f openwrt/.config
+        rm -f openwrt/.config.old
+        rm -f openwrt/.config.bak
+
+        # 加载本次配置
         [ -e "$CONFIG_FILE" ] && mv "$CONFIG_FILE" openwrt/.config
 
         chmod +x ./customize.sh && ./customize.sh
